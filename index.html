@@ -487,6 +487,48 @@ button{font:inherit; color:inherit}
 <canvas id="snow" class="snow" aria-hidden="true"></canvas>
 
 <script>
+/* ===== 우클릭 / 개발자도구 차단 ===== */
+(function () {
+  const stop = (e) => { e.preventDefault(); e.stopPropagation(); return false; };
+
+  // 우클릭(길게 누르기 메뉴 포함), 이미지 드래그, 텍스트 복사 방지
+  document.addEventListener('contextmenu', stop, true);
+  document.addEventListener('dragstart', stop, true);
+  document.addEventListener('copy', (e) => {
+    const t = e.target;
+    if (!(t && /^(INPUT|TEXTAREA)$/.test(t.tagName))) stop(e);
+  }, true);
+
+  // F12, Ctrl+Shift+I/J/C, Ctrl+U(소스보기), Ctrl+S(저장), Mac Cmd+Opt+I/J/C/U
+  document.addEventListener('keydown', (e) => {
+    const k = (e.key || '').toLowerCase();
+    const mod = e.ctrlKey || e.metaKey;
+    if (
+      e.key === 'F12' ||
+      (mod && e.shiftKey && ['i', 'j', 'c', 'k'].includes(k)) ||
+      (e.metaKey && e.altKey && ['i', 'j', 'c', 'u'].includes(k)) ||
+      (mod && ['u', 's'].includes(k))
+    ) stop(e);
+  }, true);
+
+  // 개발자도구가 열린 경우 감지 (데스크톱 전용: 창 크기 차이)
+  const isTouch = matchMedia('(pointer: coarse)').matches;
+  if (!isTouch) {
+    let blocked = false;
+    setInterval(() => {
+      const opened =
+        window.outerWidth - window.innerWidth > 160 ||
+        window.outerHeight - window.innerHeight > 200;
+      if (opened && !blocked) {
+        blocked = true;
+        document.body.innerHTML =
+          '<div style="padding:40vh 20px 0;text-align:center;font-size:16px">개발자 도구를 닫아주세요.</div>';
+      }
+    }, 1000);
+  }
+})();
+</script>
+<script>
 /* ===== 편집할 내용 ===== */
 // 표지 사진과 갤러리 사진(순서대로). 갤러리 첫 사진은 크게 보입니다.
 const COVER = "images/photo-5.jpg";
